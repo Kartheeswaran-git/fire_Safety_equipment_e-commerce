@@ -1,0 +1,205 @@
+
+> fire-service-store@0.0.0 lint
+> eslint .
+
+
+/Users/karthi/Desktop/fire-service-store/src/App.jsx
+   63:12  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+  61 |         path="/admin"
+  62 |         element={
+> 63 |           <PrivateRoute>
+     |            ^^^^^^^^^^^^ This component is created during render
+  64 |             <AdminLayout>
+  65 |               <Dashboard />
+  66 |             </AdminLayout>
+
+  36 |   }, []);
+  37 |
+> 38 |   const PrivateRoute = ({ children }) => {
+     |                        ^^^^^^^^^^^^^^^^^^^
+> 39 |     return user ? children : <Navigate to="/login" />;
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 40 |   };
+     | ^^^^ The component is created during render here
+  41 |
+  42 |   if (loading) {
+  43 |     return (                   react-hooks/static-components
+   74:12  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+  72 |         path="/admin/products"
+  73 |         element={
+> 74 |           <PrivateRoute>
+     |            ^^^^^^^^^^^^ This component is created during render
+  75 |             <AdminLayout>
+  76 |               <Products />
+  77 |             </AdminLayout>
+
+  36 |   }, []);
+  37 |
+> 38 |   const PrivateRoute = ({ children }) => {
+     |                        ^^^^^^^^^^^^^^^^^^^
+> 39 |     return user ? children : <Navigate to="/login" />;
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 40 |   };
+     | ^^^^ The component is created during render here
+  41 |
+  42 |   if (loading) {
+  43 |     return (           react-hooks/static-components
+   85:12  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+  83 |         path="/admin/categories"
+  84 |         element={
+> 85 |           <PrivateRoute>
+     |            ^^^^^^^^^^^^ This component is created during render
+  86 |             <AdminLayout>
+  87 |               <Categories />
+  88 |             </AdminLayout>
+
+  36 |   }, []);
+  37 |
+> 38 |   const PrivateRoute = ({ children }) => {
+     |                        ^^^^^^^^^^^^^^^^^^^
+> 39 |     return user ? children : <Navigate to="/login" />;
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 40 |   };
+     | ^^^^ The component is created during render here
+  41 |
+  42 |   if (loading) {
+  43 |     return (       react-hooks/static-components
+   96:12  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+  94 |         path="/admin/orders"
+  95 |         element={
+> 96 |           <PrivateRoute>
+     |            ^^^^^^^^^^^^ This component is created during render
+  97 |             <AdminLayout>
+  98 |               <Orders />
+  99 |             </AdminLayout>
+
+  36 |   }, []);
+  37 |
+> 38 |   const PrivateRoute = ({ children }) => {
+     |                        ^^^^^^^^^^^^^^^^^^^
+> 39 |     return user ? children : <Navigate to="/login" />;
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 40 |   };
+     | ^^^^ The component is created during render here
+  41 |
+  42 |   if (loading) {
+  43 |     return (               react-hooks/static-components
+  107:12  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+  105 |         path="/admin/customers"
+  106 |         element={
+> 107 |           <PrivateRoute>
+      |            ^^^^^^^^^^^^ This component is created during render
+  108 |             <AdminLayout>
+  109 |               <Customers />
+  110 |             </AdminLayout>
+
+  36 |   }, []);
+  37 |
+> 38 |   const PrivateRoute = ({ children }) => {
+     |                        ^^^^^^^^^^^^^^^^^^^
+> 39 |     return user ? children : <Navigate to="/login" />;
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 40 |   };
+     | ^^^^ The component is created during render here
+  41 |
+  42 |   if (loading) {
+  43 |     return (  react-hooks/static-components
+  118:12  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+  116 |         path="/admin/analytics"
+  117 |         element={
+> 118 |           <PrivateRoute>
+      |            ^^^^^^^^^^^^ This component is created during render
+  119 |             <AdminLayout>
+  120 |               <Analytics />
+  121 |             </AdminLayout>
+
+  36 |   }, []);
+  37 |
+> 38 |   const PrivateRoute = ({ children }) => {
+     |                        ^^^^^^^^^^^^^^^^^^^
+> 39 |     return user ? children : <Navigate to="/login" />;
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 40 |   };
+     | ^^^^ The component is created during render here
+  41 |
+  42 |   if (loading) {
+  43 |     return (  react-hooks/static-components
+  129:12  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+  127 |         path="/admin/settings"
+  128 |         element={
+> 129 |           <PrivateRoute>
+      |            ^^^^^^^^^^^^ This component is created during render
+  130 |             <AdminLayout>
+  131 |               <Settings />
+  132 |             </AdminLayout>
+
+  36 |   }, []);
+  37 |
+> 38 |   const PrivateRoute = ({ children }) => {
+     |                        ^^^^^^^^^^^^^^^^^^^
+> 39 |     return user ? children : <Navigate to="/login" />;
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 40 |   };
+     | ^^^^ The component is created during render here
+  41 |
+  42 |   if (loading) {
+  43 |     return (    react-hooks/static-components
+
+/Users/karthi/Desktop/fire-service-store/src/components/Sidebar.jsx
+  1:17  error  'useState' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+/Users/karthi/Desktop/fire-service-store/src/pages/Cart.jsx
+   7:10  error  'loading' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       no-unused-vars
+   7:19  error  'setLoading' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    no-unused-vars
+  10:5   error  Error: Cannot access variable before it is declared
+
+`loadCart` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+   8 |
+   9 |   useEffect(() => {
+> 10 |     loadCart();
+     |     ^^^^^^^^ `loadCart` accessed before it is declared
+  11 |   }, []);
+  12 |
+  13 |   const loadCart = () => {
+
+  11 |   }, []);
+  12 |
+> 13 |   const loadCart = () => {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^
+> 14 |     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 15 |     setCartItems(cart);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 16 |   };
+     | ^^^^^ `loadCart` is declared here
+  17 |
+  18 |   const updateQuantity = (id, newQuantity) => {
+  19 |     if (newQuantity < 1) return;  react-hooks/immutability
+
+/Users/karthi/Desktop/fire-service-store/src/pages/ProductDetails.jsx
+  18:6  warning  React Hook useEffect has a missing dependency: 'fetchProduct'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+✖ 12 problems (11 errors, 1 warning)
+
