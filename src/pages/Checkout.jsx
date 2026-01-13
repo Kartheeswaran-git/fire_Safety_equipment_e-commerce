@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { addDoc, collection, serverTimestamp, getDocs, query, where } from 'firebase/firestore';
-import { db } from '../firebase';
+import { addDoc, collection, serverTimestamp, getDocs, query, where, getDoc, doc, setDoc } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
+import { db, auth } from '../firebase';
 import { Shield, CheckCircle, ArrowLeft } from 'lucide-react';
 
 const Checkout = () => {
@@ -10,6 +11,44 @@ const Checkout = () => {
   const [loading, setLoading] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderId, setOrderId] = useState('');
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+
+        // Fetch saved user details
+        try {
+          const userDocRef = doc(db, 'users', currentUser.uid);
+          const userDoc = await getDoc(userDocRef);
+
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            setFormData(prev => ({
+              ...prev,
+              customerName: userData.name || currentUser.displayName || '',
+              email: userData.email || currentUser.email || '',
+              phone: userData.phone || '',
+              address: userData.address || '',
+              city: userData.city || '',
+              pincode: userData.pincode || ''
+            }));
+          } else {
+            // Fallback if doc doesn't exist yet
+            setFormData(prev => ({
+              ...prev,
+              customerName: currentUser.displayName || '',
+              email: currentUser.email || ''
+            }));
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   const [formData, setFormData] = useState({
     customerName: '',
@@ -52,24 +91,38 @@ const Checkout = () => {
     setLoading(true);
 
     try {
-      // Check if customer exists
-      const usersRef = collection(db, 'users');
-      const q = query(usersRef, where("email", "==", formData.email));
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        await addDoc(usersRef, {
+      // Save/Update User Profile with latest address
+      if (user) {
+        await setDoc(doc(db, 'users', user.uid), {
           name: formData.customerName,
           email: formData.email,
           phone: formData.phone,
-          address: `${formData.address}, ${formData.city} - ${formData.pincode}`,
-          createdAt: serverTimestamp(),
-          role: 'customer'
-        });
+          address: formData.address,
+          city: formData.city,
+          pincode: formData.pincode,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+      } else {
+        // Legacy flow for guest checkout (if enabled later) or fallback
+        const usersRef = collection(db, 'users');
+        const q = query(usersRef, where("email", "==", formData.email));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+          await addDoc(usersRef, {
+            name: formData.customerName,
+            email: formData.email,
+            phone: formData.phone,
+            address: `${formData.address}, ${formData.city} - ${formData.pincode}`,
+            createdAt: serverTimestamp(),
+            role: 'customer'
+          });
+        }
       }
 
       // Create order object
       const orderData = {
+        userId: user ? user.uid : null, // Link order to user ID
         customerName: formData.customerName,
         email: formData.email,
         phone: formData.phone,

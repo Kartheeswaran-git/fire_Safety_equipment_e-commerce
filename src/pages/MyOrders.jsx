@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from '../firebase';
 import { Package, Calendar, MapPin, ChevronRight, ShoppingBag, Shield } from 'lucide-react';
@@ -24,13 +24,18 @@ const MyOrders = () => {
         return () => unsubscribe();
     }, [navigate]);
 
-    const fetchOrders = async (email) => {
+    const fetchOrders = async (userEmail) => {
         try {
-            const q = query(
-                collection(db, 'orders'),
-                where('email', '==', email),
-                orderBy('createdAt', 'desc')
-            );
+            let q;
+            const ordersRef = collection(db, 'orders');
+
+            if (user?.uid) {
+                // Prefer querying by User ID if available
+                q = query(ordersRef, where('userId', '==', user.uid));
+            } else {
+                // Fallback to email
+                q = query(ordersRef, where('email', '==', userEmail));
+            }
 
             const querySnapshot = await getDocs(q);
             const ordersList = querySnapshot.docs.map(doc => ({
@@ -38,11 +43,16 @@ const MyOrders = () => {
                 ...doc.data()
             }));
 
+            // Client-side sorting to avoid composite index requirement
+            ordersList.sort((a, b) => {
+                const dateA = a.createdAt?.seconds || 0;
+                const dateB = b.createdAt?.seconds || 0;
+                return dateB - dateA; // Descending order
+            });
+
             setOrders(ordersList);
         } catch (error) {
             console.error("Error fetching orders:", error);
-            // If error is about missing index, we might need to create one.
-            // Fallback or alert? For now log it.
         } finally {
             setLoading(false);
         }
@@ -115,8 +125,8 @@ const MyOrders = () => {
                                     </div>
 
                                     <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${order.status === 'Completed' ? 'bg-green-100 text-green-700' :
-                                            order.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
-                                                'bg-amber-100 text-amber-700'
+                                        order.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
+                                            'bg-amber-100 text-amber-700'
                                         }`}>
                                         {order.status || 'Pending'}
                                     </div>

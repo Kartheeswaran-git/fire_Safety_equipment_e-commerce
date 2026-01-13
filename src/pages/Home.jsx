@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { collection, getDocs, doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { db, auth } from '../firebase';
 import { ShoppingCart, Search, Filter, Shield, Truck, Award, Phone, Loader2, Menu, X, User, LogOut, LogIn } from 'lucide-react';
 
@@ -138,6 +138,30 @@ const Home = () => {
       setLoginPassword('');
     } catch (error) {
       console.error("Auth error:", error);
+      setLoginError(error.message.replace('Firebase: ', ''));
+    } finally {
+      setLoginLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setLoginError('');
+    setLoginLoading(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      await setDoc(doc(db, 'users', user.uid), {
+        name: user.displayName || user.email.split('@')[0],
+        email: user.email,
+        role: 'customer',
+        lastLogin: serverTimestamp()
+      }, { merge: true });
+
+      setShowLoginModal(false);
+    } catch (error) {
+      console.error("Google Auth error:", error);
       setLoginError(error.message.replace('Firebase: ', ''));
     } finally {
       setLoginLoading(false);
@@ -507,77 +531,95 @@ const Home = () => {
                   </p>
                 </div>
 
-                <form onSubmit={handleAuth} className="space-y-4">
-                  {isSignUp && (
+                <div className="space-y-4">
+                  <button
+                    onClick={handleGoogleLogin}
+                    disabled={loginLoading}
+                    className="w-full bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 py-2.5 rounded-lg font-bold transition-all flex items-center justify-center gap-2"
+                  >
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
+                    <span>Sign in with Google</span>
+                  </button>
+
+                  <div className="relative flex items-center justify-center p-2">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-slate-200"></div>
+                    </div>
+                    <span className="relative bg-white px-4 text-xs text-slate-400 font-bold uppercase">Or continue with email</span>
+                  </div>
+
+                  <form onSubmit={handleAuth} className="space-y-4">
+                    {isSignUp && (
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+                        <input
+                          type="text"
+                          value={loginName}
+                          onChange={(e) => setLoginName(e.target.value)}
+                          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          placeholder="John Doe"
+                          required
+                        />
+                      </div>
+                    )}
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
                       <input
-                        type="text"
-                        value={loginName}
-                        onChange={(e) => setLoginName(e.target.value)}
+                        type="email"
+                        value={loginEmail}
+                        onChange={(e) => setLoginEmail(e.target.value)}
                         className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                        placeholder="John Doe"
+                        placeholder="you@example.com"
                         required
                       />
                     </div>
-                  )}
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
-                    <input
-                      type="email"
-                      value={loginEmail}
-                      onChange={(e) => setLoginEmail(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      placeholder="you@example.com"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
-                    <input
-                      type="password"
-                      value={loginPassword}
-                      onChange={(e) => setLoginPassword(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      placeholder="••••••••"
-                      required
-                      minLength={6}
-                    />
-                  </div>
-
-                  {loginError && (
-                    <div className="text-red-500 text-sm bg-red-50 p-3 rounded-lg flex items-start gap-2">
-                      <div className="mt-0.5"><X size={14} /></div>
-                      <span>{loginError}</span>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                      <input
+                        type="password"
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        placeholder="••••••••"
+                        required
+                        minLength={6}
+                      />
                     </div>
-                  )}
 
-                  <button
-                    type="submit"
-                    disabled={loginLoading}
-                    className="w-full bg-primary-600 hover:bg-primary-700 text-white py-2.5 rounded-lg font-bold transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                  >
-                    {loginLoading ? (
-                      <Loader2 size={18} className="animate-spin" />
-                    ) : (
-                      <span>{isSignUp ? 'Sign Up' : 'Sign In'}</span>
+                    {loginError && (
+                      <div className="text-red-500 text-sm bg-red-50 p-3 rounded-lg flex items-start gap-2">
+                        <div className="mt-0.5"><X size={14} /></div>
+                        <span>{loginError}</span>
+                      </div>
                     )}
-                  </button>
-                </form>
 
-                <div className="mt-6 text-center">
-                  <p className="text-sm text-slate-600">
-                    {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
                     <button
-                      onClick={() => {
-                        setIsSignUp(!isSignUp);
-                        setLoginError('');
-                      }}
-                      className="text-primary-600 font-bold hover:underline"
+                      type="submit"
+                      disabled={loginLoading}
+                      className="w-full bg-primary-600 hover:bg-primary-700 text-white py-2.5 rounded-lg font-bold transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                      {isSignUp ? 'Sign In' : 'Sign Up'}
+                      {loginLoading ? (
+                        <Loader2 size={18} className="animate-spin" />
+                      ) : (
+                        <span>{isSignUp ? 'Sign Up' : 'Sign In'}</span>
+                      )}
                     </button>
-                  </p>
+                  </form>
+
+                  <div className="mt-6 text-center">
+                    <p className="text-sm text-slate-600">
+                      {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+                      <button
+                        onClick={() => {
+                          setIsSignUp(!isSignUp);
+                          setLoginError('');
+                        }}
+                        className="text-primary-600 font-bold hover:underline"
+                      >
+                        {isSignUp ? 'Sign In' : 'Sign Up'}
+                      </button>
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
