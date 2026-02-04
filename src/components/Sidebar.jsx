@@ -66,7 +66,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
               <Shield size={24} fill="currentColor" />
             </div>
             <div>
-              <h1 className="font-bold text-lg tracking-tight">Fire Safety TN</h1>
+              <h1 className="font-bold text-lg tracking-tight">TAMIL NADU FIRE EQUIPMENTS</h1>
               <p className="text-xs text-slate-400 font-medium">Admin Portal</p>
             </div>
           </div>

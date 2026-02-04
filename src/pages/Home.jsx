@@ -13,6 +13,8 @@ const Home = () => {
   const [cartCount, setCartCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 12;
   const navigate = useNavigate();
 
   // Auth State
@@ -77,6 +79,17 @@ const Home = () => {
     const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory]);
 
   const addToCart = (product) => {
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
@@ -213,8 +226,7 @@ const Home = () => {
                 <Shield size={24} className="text-primary-600" />
               </div>
               <div className="flex flex-col">
-                <h1 className="text-xl font-bold text-slate-900 leading-none">Fire Safety TN</h1>
-                <p className="text-xs text-slate-500 font-medium tracking-wide">OFFICIAL MARKETPLACE</p>
+                <h1 className="text-xl font-bold text-slate-900 leading-none">TAMIL NADU FIRE EQUIPMENTS</h1>
               </div>
             </Link>
 
@@ -409,59 +421,113 @@ const Home = () => {
             <p className="text-slate-500">Try adjusting your search or filter</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProducts.map((product) => (
-              <div key={product.id} className="group bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl hover:border-primary-100 transition-all duration-300">
-                <Link to={`/product/${product.id}`} className="block relative aspect-[4/3] bg-slate-100 overflow-hidden">
-                  {product.imageUrl ? (
-                    <img
-                      src={product.imageUrl}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-300">
-                      <Shield size={48} />
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {currentProducts.map((product) => (
+                <div key={product.id} className="group bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl hover:border-primary-100 transition-all duration-300">
+                  <Link to={`/product/${product.id}`} className="block relative aspect-[4/3] bg-slate-100 overflow-hidden">
+                    {product.imageUrl ? (
+                      <img
+                        src={product.imageUrl}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-slate-300">
+                        <Shield size={48} />
+                      </div>
+                    )}
+                    {/* Stock Badge */}
+                    <div className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-bold backdrop-blur-md ${product.stock > 10 ? 'bg-emerald-500/90 text-white' : 'bg-amber-500/90 text-white'
+                      }`}>
+                      {product.stock > 10 ? 'In Stock' : 'Low Stock'}
                     </div>
-                  )}
-                  {/* Stock Badge */}
-                  <div className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-bold backdrop-blur-md ${product.stock > 10 ? 'bg-emerald-500/90 text-white' : 'bg-amber-500/90 text-white'
-                    }`}>
-                    {product.stock > 10 ? 'In Stock' : 'Low Stock'}
-                  </div>
-                </Link>
-
-                <div className="p-5">
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="text-xs font-bold text-primary-600 uppercase tracking-wider">{product.category}</span>
-                    <span className="text-lg font-bold text-slate-900">₹{product.price}</span>
-                  </div>
-                  <Link to={`/product/${product.id}`}>
-                    <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-primary-600 transition-colors line-clamp-1">{product.name}</h3>
                   </Link>
-                  <p className="text-slate-500 text-sm mb-4 line-clamp-2">{product.description}</p>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      onClick={() => addToCart(product)}
-                      disabled={product.stock === 0}
-                      className="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-lg font-semibold text-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <ShoppingCart size={16} />
-                      Add
-                    </button>
-                    <button
-                      onClick={() => handleBuyNow(product)}
-                      disabled={product.stock === 0}
-                      className="py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-semibold text-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm shadow-primary-600/20"
-                    >
-                      Buy Now
-                    </button>
+                  <div className="p-5">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-xs font-bold text-primary-600 uppercase tracking-wider">{product.category}</span>
+                      <span className="text-lg font-bold text-slate-900">₹{product.price}</span>
+                    </div>
+                    <Link to={`/product/${product.id}`}>
+                      <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-primary-600 transition-colors line-clamp-1">{product.name}</h3>
+                    </Link>
+                    <p className="text-slate-500 text-sm mb-4 line-clamp-2">{product.description}</p>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        onClick={() => addToCart(product)}
+                        disabled={product.stock === 0}
+                        className="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-lg font-semibold text-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <ShoppingCart size={16} />
+                        Add
+                      </button>
+                      <button
+                        onClick={() => handleBuyNow(product)}
+                        disabled={product.stock === 0}
+                        className="py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-semibold text-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm shadow-primary-600/20"
+                      >
+                        Buy Now
+                      </button>
+                    </div>
                   </div>
                 </div>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-2 mt-12">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
+                >
+                  Previous
+                </button>
+
+                <div className="flex gap-2">
+                  {[...Array(totalPages)].map((_, index) => {
+                    const pageNumber = index + 1;
+                    // Show first page, last page, current page, and pages around current
+                    const showPage = pageNumber === 1 ||
+                      pageNumber === totalPages ||
+                      (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1);
+
+                    if (!showPage) {
+                      // Show ellipsis
+                      if (pageNumber === currentPage - 2 || pageNumber === currentPage + 2) {
+                        return <span key={pageNumber} className="px-2 text-slate-400">...</span>;
+                      }
+                      return null;
+                    }
+
+                    return (
+                      <button
+                        key={pageNumber}
+                        onClick={() => setCurrentPage(pageNumber)}
+                        className={`px-4 py-2 rounded-lg font-medium transition-all ${currentPage === pageNumber
+                            ? 'bg-slate-900 text-white shadow-md'
+                            : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
+                          }`}
+                      >
+                        {pageNumber}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
+                >
+                  Next
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </section>
 
@@ -471,7 +537,7 @@ const Home = () => {
           <div>
             <div className="flex items-center gap-2 text-white mb-4">
               <Shield className="text-primary-500" />
-              <span className="text-xl font-bold">Fire Safety TN</span>
+              <span className="text-xl font-bold">TAMIL NADU FIRE EQUIPMENTS</span>
             </div>
             <p className="text-sm leading-relaxed mb-6">Your trusted partner for fire safety equipment across Tamil Nadu. Certified products, expert support.</p>
           </div>
@@ -488,9 +554,9 @@ const Home = () => {
           <div>
             <h3 className="text-white font-bold mb-4">Contact</h3>
             <ul className="space-y-2 text-sm">
-              <li>Chennai, Tamil Nadu</li>
-              <li>support@firesafetytn.com</li>
-              <li>+91 98765 43210</li>
+              <li>1/957, kodangi Palayam, Trichy Main Road, Karnampettai,Palladam-641662</li>
+              <li>tamilnadufiresafty@gmail.com</li>
+              <li>+91 8608605264</li>
             </ul>
           </div>
 
@@ -504,7 +570,7 @@ const Home = () => {
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-4 mt-12 pt-8 border-t border-slate-800 text-center text-xs">
-          © {new Date().getFullYear()} Tamil Nadu Fire Safety Equipment Marketplace. All rights reserved.
+          © {new Date().getFullYear()} Tamil Nadu Fire Safety Equipment Marketplace.
         </div>
       </footer>
 
